@@ -29,7 +29,7 @@ Build and deploy AI agents powered by OpenRouter.
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/agentforge.git
+git clone https://github.com/ckz/agentforge.git
 cd agentforge
 ```
 
@@ -77,7 +77,7 @@ npm run dev
 3. Use the endpoint to call your agent from any application:
 
 ```bash
-curl -X POST https://your-domain.vercel.app/api/deploy/AGENT_ID \
+curl -X POST https://agentforge-ckz.vercel.app/api/deploy/AGENT_ID \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"messages": [{"role": "user", "content": "Hello!"}]}'
