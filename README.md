@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AgentForge
+
+Build and deploy AI agents powered by OpenRouter.
+
+## Features
+
+- **Agent Builder**: Create custom AI agents with name, role, system prompt, and model selection
+- **Tool Designer**: Define tools with Zod schemas that agents can use
+- **Live Chat**: Chat with your agents with real-time streaming responses
+- **Agent Gallery**: Save and manage multiple agents with pre-built templates
+- **API Deployment**: Deploy agents as REST endpoints with API key authentication
+
+## Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS + shadcn/ui
+- **AI**: Vercel AI SDK + OpenRouter (multi-provider LLM)
+- **Database**: SQLite with better-sqlite3
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+
+- OpenRouter API key
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/agentforge.git
+cd agentforge
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+# Add your OpenRouter API key to .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Run the development server:
+```bash
+npm run dev
+```
 
-## Learn More
+5. Open [http://localhost:3000](http://localhost:3000)
 
-To learn more about Next.js, take a look at the following resources:
+## Usage
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Creating an Agent
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Click "New Agent" or select a template from the gallery
+2. Configure the agent:
+   - Name: A friendly name for your agent
+   - Role: The agent's role/specialty
+   - System Prompt: Instructions for how the agent should behave
+   - Model: Choose from OpenRouter's available models
+   - Temperature: Control response creativity (0-2)
+   - Tools: Add custom tools the agent can use
+
+### Chatting with an Agent
+
+1. Click "Chat" on any agent card
+2. Type your message and press Enter
+3. Watch the agent respond with real-time streaming
+
+### Deploying an Agent API
+
+1. Click the rocket icon on an agent card
+2. The API endpoint and key will be copied to your clipboard
+3. Use the endpoint to call your agent from any application:
+
+```bash
+curl -X POST https://your-domain.vercel.app/api/deploy/AGENT_ID \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"messages": [{"role": "user", "content": "Hello!"}]}'
+```
+
+## Available Models
+
+- GPT-4o / GPT-4o Mini (OpenAI)
+- Claude 3.5 Sonnet / Haiku (Anthropic)
+- Gemini Pro 1.5 (Google)
+- Llama 3.1 70B (Meta)
+- DeepSeek Chat
+- Mistral Large
+
+## Project Structure
+
+```
+agentforge/
+├── src/
+│   ├── app/              # Next.js App Router pages
+│   ├── components/       # React components
+│   │   ├── agentforge/   # AgentForge-specific components
+│   │   └── ui/           # shadcn/ui components
+│   ├── lib/              # Utilities and database
+│   └── types/            # TypeScript type definitions
+├── data/                 # SQLite database (auto-created)
+└── public/               # Static assets
+```
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+MIT

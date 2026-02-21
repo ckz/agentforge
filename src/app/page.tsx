@@ -1,65 +1,158 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+import { Agent, AGENT_TEMPLATES } from '@/types/agent';
+import { AgentGallery } from '@/components/agentforge/AgentGallery';
+import { Button } from '@/components/ui/button';
+import { Bot, Plus, Github } from 'lucide-react';
 
 export default function Home() {
+  const router = useRouter();
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAgents();
+  }, []);
+
+  const fetchAgents = async () => {
+    try {
+      const res = await fetch('/api/agents');
+      if (res.ok) {
+        const data = await res.json();
+        setAgents(data);
+      }
+    } catch (error) {
+      toast.error('Failed to load agents');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSelectAgent = (agent: Agent) => {
+    router.push(`/chat/${agent.id}`);
+  };
+
+  const handleEditAgent = (agent: Agent) => {
+    router.push(`/builder?id=${agent.id}`);
+  };
+
+  const handleDeleteAgent = async (agentId: string) => {
+    if (!confirm('Are you sure you want to delete this agent?')) return;
+
+    try {
+      const res = await fetch(`/api/agents?id=${agentId}`, { method: 'DELETE' });
+      if (res.ok) {
+        setAgents(agents.filter((a) => a.id !== agentId));
+        toast.success('Agent deleted');
+      }
+    } catch (error) {
+      toast.error('Failed to delete agent');
+    }
+  };
+
+  const handleDeploy = async (agent: Agent) => {
+    try {
+      const res = await fetch('/api/deploy/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agentId: agent.id }),
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        toast.success(
+          data.existing 
+            ? 'Deployment already exists!' 
+            : 'Agent deployed successfully!'
+        );
+        
+        const endpoint = `${window.location.origin}${data.endpoint}`;
+        navigator.clipboard.writeText(`curl -X POST ${endpoint} \\
+  -H "Authorization: Bearer ${data.apiKey}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"messages": [{"role": "user", "content": "Hello!"}]}'`);
+        
+        toast.success('API example copied to clipboard!');
+      }
+    } catch (error) {
+      toast.error('Failed to deploy agent');
+    }
+  };
+
+  const handleCreateFromTemplate = async (template: typeof AGENT_TEMPLATES[0]) => {
+    try {
+      const res = await fetch('/api/agents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...template,
+          name: `${template.name} (Copy)`,
+        }),
+      });
+      
+      if (res.ok) {
+        const newAgent = await res.json();
+        setAgents([newAgent, ...agents]);
+        toast.success('Agent created from template!');
+      }
+    } catch (error) {
+      toast.error('Failed to create agent');
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
+    <div className="min-h-screen bg-background">
+      <header className="border-b">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <Bot className="h-8 w-8 text-primary" />
+            <span className="text-xl font-bold">AgentForge</span>
+          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/builder">
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                New Agent
+              </Button>
+            </Link>
             <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              href="https://github.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-foreground"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <Github className="h-5 w-5" />
+            </a>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          </div>
+        ) : (
+          <AgentGallery
+            agents={agents}
+            onSelect={handleSelectAgent}
+            onEdit={handleEditAgent}
+            onDelete={handleDeleteAgent}
+            onDeploy={handleDeploy}
+            onCreateFromTemplate={handleCreateFromTemplate}
+          />
+        )}
       </main>
+
+      <footer className="border-t py-6 mt-12">
+        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+          <p>AgentForge - Build and deploy AI agents with OpenRouter</p>
+        </div>
+      </footer>
     </div>
   );
 }
