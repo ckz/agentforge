@@ -7,16 +7,38 @@ import toast from 'react-hot-toast';
 import { Agent, AGENT_TEMPLATES } from '@/types/agent';
 import { AgentGallery } from '@/components/agentforge/AgentGallery';
 import { Button } from '@/components/ui/button';
-import { Bot, Plus, Github } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Bot, Plus, Github, LogOut, User } from 'lucide-react';
+
+interface UserInfo {
+  username: string;
+  role: string;
+}
 
 export default function Home() {
   const router = useRouter();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<UserInfo | null>(null);
 
   useEffect(() => {
     fetchAgents();
+    fetchUser();
   }, []);
+
+  const fetchUser = async () => {
+    try {
+      const res = await fetch('/api/auth/me');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.authenticated) {
+          setUser(data.user);
+        }
+      }
+    } catch (error) {
+      // Ignore
+    }
+  };
 
   const fetchAgents = async () => {
     try {
@@ -104,6 +126,15 @@ export default function Home() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/login');
+    } catch (error) {
+      toast.error('Failed to logout');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b">
@@ -113,14 +144,24 @@ export default function Home() {
             <span className="text-xl font-bold">AgentForge</span>
           </Link>
           <div className="flex items-center gap-4">
+            {user && (
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">{user.username}</span>
+                <Badge variant="secondary">{user.role}</Badge>
+              </div>
+            )}
             <Link href="/builder">
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
                 New Agent
               </Button>
             </Link>
+            <Button variant="ghost" size="icon" onClick={handleLogout}>
+              <LogOut className="h-4 w-4" />
+            </Button>
             <a
-              href="https://github.com"
+              href="https://github.com/ckz/agentforge"
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-foreground"
