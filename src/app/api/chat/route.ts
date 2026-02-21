@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Agent ID is required' }, { status: 400 });
     }
 
-    const agent = db.agents.getById(agentId);
+    const agent = await db.agents.getById(agentId);
     if (!agent) {
       return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
     }

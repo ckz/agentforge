@@ -11,8 +11,8 @@
   "dependencies": {
     "@ai-sdk/openai": "^3.0.30",
     "@ai-sdk/react": "^3.0.99",
+    "@upstash/redis": "^1.36.2",
     "ai": "^6.0.97",
-    "better-sqlite3": "^12.6.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.575.0",
@@ -23,12 +23,10 @@
     "react-dom": "19.2.3",
     "react-hot-toast": "^2.6.0",
     "tailwind-merge": "^3.5.0",
-    "uuid": "^13.0.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

@@ -10,12 +10,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Agent ID is required' }, { status: 400 });
     }
 
-    const agent = db.agents.getById(agentId);
+    const agent = await db.agents.getById(agentId);
     if (!agent) {
       return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
     }
 
-    const existingDeployment = db.deployments.getByAgentId(agentId);
+    const existingDeployment = await db.deployments.getByAgentId(agentId);
     if (existingDeployment) {
       return NextResponse.json({
         apiKey: existingDeployment.apiKey,
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     };
 
-    db.deployments.create(newDeployment);
+    await db.deployments.create(newDeployment);
 
     return NextResponse.json({
       apiKey,

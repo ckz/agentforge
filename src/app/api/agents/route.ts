@@ -5,7 +5,7 @@ import { nanoid } from 'nanoid';
 
 export async function GET() {
   try {
-    const agents = db.agents.getAll();
+    const agents = await db.agents.getAll();
     return NextResponse.json(agents);
   } catch (error) {
     console.error('Get agents error:', error);
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       updatedAt: now,
     };
 
-    const saved = db.agents.create(agent);
+    const saved = await db.agents.create(agent);
     return NextResponse.json(saved);
   } catch (error) {
     console.error('Create agent error:', error);
@@ -52,7 +52,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: 'Agent ID is required' }, { status: 400 });
     }
 
-    const updated = db.agents.update(id, updates);
+    const updated = await db.agents.update(id, updates);
     if (!updated) {
       return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
     }
@@ -73,7 +73,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Agent ID is required' }, { status: 400 });
     }
 
-    const deleted = db.agents.delete(id);
+    const deleted = await db.agents.delete(id);
     if (!deleted) {
       return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
     }

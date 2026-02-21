@@ -12,7 +12,7 @@ export async function POST(
     const authHeader = req.headers.get('authorization');
     const apiKey = authHeader?.replace('Bearer ', '');
 
-    const deployment = db.deployments.getByAgentId(id);
+    const deployment = await db.deployments.getByAgentId(id);
     if (!deployment) {
       return NextResponse.json({ error: 'Deployment not found' }, { status: 404 });
     }
@@ -25,7 +25,7 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid API key' }, { status: 401 });
     }
 
-    const agent = db.agents.getById(id);
+    const agent = await db.agents.getById(id);
     if (!agent) {
       return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
     }
@@ -36,7 +36,7 @@ export async function POST(
       return NextResponse.json({ error: 'Messages array is required' }, { status: 400 });
     }
 
-    db.deployments.incrementRequestCount(deployment.id);
+    await db.deployments.incrementRequestCount(deployment.id);
 
     const model = getModel(agent.model);
     const systemPrompt = buildSystemPrompt(agent);
@@ -64,7 +64,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const deployment = db.deployments.getByAgentId(id);
+    const deployment = await db.deployments.getByAgentId(id);
     
     if (!deployment) {
       return NextResponse.json({ deployed: false });
